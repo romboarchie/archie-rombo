@@ -16,7 +16,7 @@ Theme URI:https://archierombo.com/themes/archie-rombo/
 
 Text Domain:archie-rombo
 
-Tested up to: 6.7.1
+Tested up to: 6.9.4
 
 Requires PHP: 5.8 and above
 
