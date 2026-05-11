@@ -18,7 +18,7 @@ Text Domain:archie-rombo
 
 Tested up to: 6.9.4
 
-Requires PHP: 5.8 and above
+Requires PHP: 7.2 and above
 
 License: GNU General Public License v2 or later
 
