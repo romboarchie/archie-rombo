@@ -22,6 +22,7 @@
     ?>
 
     <div class="<?php echo esc_attr($container_class); ?> mb-5" style="padding-left: 2rem;padding-right: 2rem;">
+        <?php archie_rombo_breadcrumbs(); ?>
         <div class="row">
             <?php if ($sidebar_pos === 'left' && is_active_sidebar('page-sidebar')) : ?>
                 <aside class="<?php echo esc_attr($sidebar_class); ?> order-2 order-lg-1" id="sidebar">

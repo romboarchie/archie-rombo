@@ -754,9 +754,23 @@ function archie_rombo_register_block_styles() {
 	}
 }
 add_action( 'init', 'archie_rombo_register_block_styles' );
+add_action( 'init', 'archie_rombo_register_block_pattern_categories' );
 
-
-
+/**
+ * Register custom block pattern category.
+ *
+ * @since 1.0.2
+ */
+function archie_rombo_register_block_pattern_categories() {
+	if ( function_exists( 'register_block_pattern_category' ) ) {
+		register_block_pattern_category(
+			'archie-rombo',
+			array(
+				'label' => __( 'Archie Rombo', 'archie-rombo' ),
+			)
+		);
+	}
+}
 
 function archie_rombo_register_block_patterns() {
 	register_block_pattern(
@@ -770,9 +784,865 @@ function archie_rombo_register_block_patterns() {
 			'viewportWidth' => 800,
 		)
 	);
+
+	register_block_pattern(
+		'archie-rombo/hero-section-builder',
+		array(
+			'title'       => __( 'Hero Section Builder', 'archie-rombo' ),
+			'description' => __( 'A hero banner with heading, text, buttons, and background image.', 'archie-rombo' ),
+			'content'     => '<!-- wp:cover {"url":"https://via.placeholder.com/1920x900","dimRatio":50,"focalPoint":{"x":0.5,"y":0.5},"align":"full","minHeight":450,"customOverlayColor":"#000000"} --><div class="wp-block-cover alignfull has-background-dim has-background-dim-50" style="background-image:url(https://via.placeholder.com/1920x900);min-height:450px"><span aria-hidden="true" class="wp-block-cover__gradient-background has-background-color"></span><div class="wp-block-cover__inner-container"><!-- wp:group {"layout":{"type":"constrained","contentSize":"800px"}} --><div class="wp-block-group"><!-- wp:heading {"textAlign":"center","level":1,"className":"hero-title"} --><h1 class="has-text-align-center hero-title">Your next great project starts here</h1><!-- /wp:heading --><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">Craft unforgettable experiences with a high-impact hero section designed for conversions.</p><!-- /wp:paragraph --><!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} --><div class="wp-block-buttons"><!-- wp:button {"style":{"border":{"radius":"999px"}},"className":"is-style-fill"} --><div class="wp-block-button is-style-fill"><a class="wp-block-button__link" href="#">Get Started</a></div><!-- /wp:button --><!-- wp:button {"style":{"spacing":{"padding":{"top":"0.9rem","bottom":"0.9rem","left":"1.6rem","right":"1.6rem"}}},"className":"is-style-outline"} --><div class="wp-block-button is-style-outline"><a class="wp-block-button__link" href="#">Learn More</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group --></div></div><!-- /wp:cover -->',
+			'categories'  => array( 'archie-rombo', 'featured' ),
+			'keywords'    => array( 'hero', 'banner', 'cta', 'header' ),
+			'viewportWidth'=> 1200,
+		)
+	);
 }
 add_action( 'init', 'archie_rombo_register_block_patterns' );
 
 
+/**
+ * Output JSON-LD Structured Data for SEO
+ * 
+ * @since 1.0.1
+ */
+function archie_rombo_output_json_ld() {
+	if ( ! get_theme_mod( 'archie_rombo_enable_structured_data', 1 ) ) {
+		return;
+	}
+
+	if ( is_404() || is_admin() ) {
+		return;
+	}
+
+	global $wp;
+	$site_name = get_bloginfo( 'name' );
+	$site_desc = get_bloginfo( 'description' );
+	$home_url  = home_url( '/' );
+	$current_url = home_url( add_query_arg( array(), $wp->request ) );
+
+	$schema = array(
+		'@context' => 'https://schema.org',
+		'@graph'   => array(
+			array(
+				'@type' => 'WebSite',
+				'@id'   => $home_url . '#website',
+				'url'    => $home_url,
+				'name'   => $site_name,
+				'description' => $site_desc,
+				'potentialAction' => array(
+					'@type' => 'SearchAction',
+					'target' => $home_url . '?s={search_term_string}',
+					'query-input' => 'required name=search_term_string',
+				),
+			),
+		),
+	);
+
+	if ( is_singular( 'post' ) ) {
+		global $post;
+		$author_name = get_the_author_meta( 'display_name', $post->post_author );
+		$image_url = has_post_thumbnail( $post->ID ) ? get_the_post_thumbnail_url( $post->ID, 'large' ) : '';
+		$schema['@graph'][] = array(
+			'@type'           => 'Article',
+			'@id'             => get_permalink( $post->ID ) . '#article',
+			'url'             => get_permalink( $post->ID ),
+			'headline'        => get_the_title( $post->ID ),
+			'image'           => $image_url,
+			'datePublished'   => get_the_date( DATE_W3C, $post->ID ),
+			'dateModified'    => get_the_modified_date( DATE_W3C, $post->ID ),
+			'author'         => array(
+				'@type' => 'Person',
+				'name'  => $author_name,
+			),
+			'publisher'       => array(
+				'@type' => 'Organization',
+				'name'  => $site_name,
+				'logo'  => array(
+					'@type' => 'ImageObject',
+					'url'   => get_theme_mod( 'custom_logo' ) ? wp_get_attachment_image_url( get_theme_mod( 'custom_logo' ), 'full' ) : '',
+				),
+			),
+			'description'     => get_the_excerpt( $post->ID ),
+			'mainEntityOfPage' => get_permalink( $post->ID ),
+		);
+	} elseif ( is_singular( 'page' ) ) {
+		global $post;
+		$schema['@graph'][] = array(
+			'@type' => 'WebPage',
+			'@id'   => get_permalink( $post->ID ) . '#webpage',
+			'url'    => get_permalink( $post->ID ),
+			'name'   => get_the_title( $post->ID ),
+			'description' => get_the_excerpt( $post->ID ),
+		);
+	} elseif ( is_front_page() || is_home() ) {
+		$schema['@graph'][] = array(
+			'@type' => 'WebPage',
+			'@id'   => $home_url . '#homepage',
+			'url'    => $home_url,
+			'name'   => $site_name,
+			'description' => $site_desc,
+		);
+	} elseif ( is_archive() || is_search() ) {
+		$schema['@graph'][] = array(
+			'@type' => 'CollectionPage',
+			'@id'   => $current_url . '#collection',
+			'url'    => $current_url,
+			'name'   => wp_get_document_title(),
+			'description' => $site_desc,
+		);
+	}
+
+	echo '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT ) . '</script>';
+}
+add_action( 'wp_head', 'archie_rombo_output_json_ld' );
+
+
+/**
+ * Breadcrumb Navigation
+ * Displays breadcrumbs for improved navigation and SEO
+ * 
+ * @since 1.0.1
+ */
+function archie_rombo_breadcrumbs() {
+	// Check if breadcrumbs are enabled
+	if ( ! get_theme_mod( 'archie_rombo_enable_breadcrumbs', 1 ) ) {
+		return;
+	}
+
+	// Don't show breadcrumbs on homepage or 404 pages
+	if ( is_front_page() || is_404() ) {
+		return;
+	}
+
+	$breadcrumb = array();
+	$show_on_home = 0; // set to 1 to show breadcrumbs on home page
+
+	if ( is_home() || ( is_single() && get_post_type() != 'page' ) ) {
+		if ( get_option('show_on_front') == 'page' ) {
+			$home_link = home_url( '/' );
+			$breadcrumb[] = '<a href="' . esc_url( $home_link ) . '">' . esc_html__( 'Home', 'archie-rombo' ) . '</a>';
+			
+			if ( is_single() ) {
+				$cat = get_the_category();
+				if ( $cat ) {
+					$cat = $cat[0];
+					$breadcrumb[] = '<a href="' . esc_url( get_category_link( $cat->term_id ) ) . '">' . esc_html( $cat->name ) . '</a>';
+				}
+				$breadcrumb[] = get_the_title();
+			}
+		}
+	} elseif ( is_category() ) {
+		$breadcrumb[] = '<a href="' . esc_url( home_url( '/' ) ) . '">' . esc_html__( 'Home', 'archie-rombo' ) . '</a>';
+		$breadcrumb[] = esc_html__( 'Archive by category', 'archie-rombo' ) . ' "' . single_cat_title( '', false ) . '"';
+	} elseif ( is_search() ) {
+		$breadcrumb[] = '<a href="' . esc_url( home_url( '/' ) ) . '">' . esc_html__( 'Home', 'archie-rombo' ) . '</a>';
+		$breadcrumb[] = esc_html__( 'Search results for', 'archie-rombo' ) . ' "' . get_search_query() . '"';
+	} elseif ( is_page() ) {
+		$breadcrumb[] = '<a href="' . esc_url( home_url( '/' ) ) . '">' . esc_html__( 'Home', 'archie-rombo' ) . '</a>';
+		
+		if ( $post_ancestors = get_post_ancestors( get_the_ID() ) ) {
+			$post_ancestors = array_reverse( $post_ancestors );
+			foreach ( $post_ancestors as $crumb ) {
+				$breadcrumb[] = '<a href="' . esc_url( get_permalink( $crumb ) ) . '">' . esc_html( get_the_title( $crumb ) ) . '</a>';
+			}
+		}
+		
+		$breadcrumb[] = get_the_title();
+	} elseif ( is_singular( 'portfolios' ) ) {
+		$breadcrumb[] = '<a href="' . esc_url( home_url( '/' ) ) . '">' . esc_html__( 'Home', 'archie-rombo' ) . '</a>';
+		$breadcrumb[] = '<a href="' . esc_url( home_url( '/portfolios/' ) ) . '">' . esc_html__( 'Portfolios', 'archie-rombo' ) . '</a>';
+		$breadcrumb[] = get_the_title();
+	} elseif ( is_archive() ) {
+		$breadcrumb[] = '<a href="' . esc_url( home_url( '/' ) ) . '">' . esc_html__( 'Home', 'archie-rombo' ) . '</a>';
+		$breadcrumb[] = get_the_archive_title();
+	}
+
+	if ( ! empty( $breadcrumb ) ) {
+		echo '<nav class="breadcrumbs" aria-label="' . esc_attr__( 'Breadcrumb', 'archie-rombo' ) . '">';
+		echo implode( ' <span class="breadcrumb-sep">/</span> ', $breadcrumb );
+		echo '</nav>';
+	}
+}
+
+// Add breadcrumb styling
+function archie_rombo_breadcrumb_styles() {
+	?>
+	<style>
+		.breadcrumbs {
+			margin: 1rem 0;
+			padding: 1rem 0;
+			font-size: 0.9rem;
+			color: #666;
+		}
+		.breadcrumbs a {
+			color: var(--primary-color);
+			text-decoration: none;
+			transition: color 0.3s ease;
+		}
+		.breadcrumbs a:hover {
+			text-decoration: underline;
+		}
+		.breadcrumb-sep {
+			margin: 0 0.5rem;
+			color: #999;
+		}
+	</style>
+	<?php
+}
+add_action( 'wp_head', 'archie_rombo_breadcrumb_styles' );
+
+
+/**
+ * Portfolio grid filters
+ * Adds category filters to the portfolios archive and ensures query support.
+ *
+ * @since 1.0.1
+ */
+function archie_rombo_get_portfolio_categories() {
+    if ( ! taxonomy_exists( 'category' ) ) {
+        return array();
+    }
+
+    $terms = get_terms(
+        array(
+            'taxonomy'   => 'category',
+            'hide_empty' => true,
+            'orderby'    => 'name',
+            'order'      => 'ASC',
+        )
+    );
+
+    return is_wp_error( $terms ) ? array() : $terms;
+}
+
+function archie_rombo_portfolio_filter_bar() {
+    if ( ! is_post_type_archive( 'portfolios' ) ) {
+        return;
+    }
+
+    $terms = archie_rombo_get_portfolio_categories();
+    if ( empty( $terms ) ) {
+        return;
+    }
+
+    $current_cat = isset( $_GET['cat'] ) ? absint( wp_unslash( $_GET['cat'] ) ) : 0;
+    $archive_url  = get_post_type_archive_link( 'portfolios' );
+
+    echo '<div class="portfolio-filter-bar mb-4">';
+    echo '<div class="filter-label mb-2"><strong>' . esc_html__( 'Filter by category', 'archie-rombo' ) . '</strong></div>';
+    echo '<div class="btn-toolbar flex-wrap">';
+    echo '<a href="' . esc_url( $archive_url ) . '" class="btn btn-outline-primary mb-2 me-2' . ( $current_cat === 0 ? ' active' : '' ) . '">' . esc_html__( 'All', 'archie-rombo' ) . '</a>';
+
+    foreach ( $terms as $term ) {
+        $url    = add_query_arg( 'cat', $term->term_id, $archive_url );
+        $active = $current_cat === $term->term_id ? ' active' : '';
+
+        echo '<a href="' . esc_url( $url ) . '" class="btn btn-outline-secondary mb-2 me-2' . $active . '">' . esc_html( $term->name ) . '</a>';
+    }
+
+    echo '</div>';
+    echo '</div>';
+}
+
+function archie_rombo_portfolio_filter_query( $query ) {
+    if ( is_admin() || ! $query->is_main_query() ) {
+        return;
+    }
+
+    if ( is_post_type_archive( 'portfolios' ) ) {
+        if ( isset( $_GET['cat'] ) && absint( $_GET['cat'] ) ) {
+            $query->set( 'cat', absint( wp_unslash( $_GET['cat'] ) ) );
+        }
+    }
+}
+add_action( 'pre_get_posts', 'archie_rombo_portfolio_filter_query' );
+
+
+/**
+ * Related Posts Feature
+ * Display related posts on single post pages
+ * 
+ * @since 1.0.1
+ */
+function archie_rombo_related_posts( $num_posts = 3 ) {
+	// Check if related posts are enabled
+	if ( ! get_theme_mod( 'archie_rombo_enable_related_posts', 1 ) ) {
+		return;
+	}
+
+	if ( ! is_single() || get_post_type() !== 'post' ) {
+		return;
+	}
+
+	// Get number of posts from customizer if not passed as parameter
+	if ( $num_posts === 3 ) {
+		$num_posts = get_theme_mod( 'archie_rombo_related_posts_count', 3 );
+	}
+
+	$categories = get_the_category();
+	if ( empty( $categories ) ) {
+		return;
+	}
+
+	$category_ids = wp_list_pluck( $categories, 'term_id' );
+
+	$args = array(
+		'category__in'        => $category_ids,
+		'posts_per_page'      => absint( $num_posts ),
+		'post__not_in'        => array( get_the_ID() ),
+		'orderby'             => 'date',
+		'order'               => 'DESC',
+		'tax_query'           => array(
+			array(
+				'taxonomy' => 'category',
+				'field'    => 'term_id',
+				'terms'    => $category_ids,
+			),
+		),
+		'post_type'           => 'post',
+		'post_status'         => 'publish',
+		'suppress_filters'    => false,
+	);
+
+	$related_posts = new WP_Query( $args );
+
+	if ( ! $related_posts->have_posts() ) {
+		return;
+	}
+
+	?>
+	<section class="related-posts mt-5 pt-5 border-top">
+		<h3 class="mb-4"><?php esc_html_e( 'Related Posts', 'archie-rombo' ); ?></h3>
+		<div class="row">
+			<?php
+			while ( $related_posts->have_posts() ) {
+				$related_posts->the_post();
+				?>
+				<div class="col-lg-4 col-md-6 mb-4">
+					<article class="card h-100 related-post-card">
+						<?php if ( has_post_thumbnail() ) : ?>
+							<a href="<?php the_permalink(); ?>" class="related-post-image">
+								<?php the_post_thumbnail( 'blog-large', array( 'class' => 'card-img-top' ) ); ?>
+							</a>
+						<?php endif; ?>
+						<div class="card-body">
+							<h5 class="card-title">
+								<a href="<?php the_permalink(); ?>" class="text-decoration-none">
+									<?php the_title(); ?>
+								</a>
+							</h5>
+							<p class="card-text text-muted small">
+								<?php echo wp_trim_words( get_the_excerpt(), 15, '...' ); ?>
+							</p>
+							<div class="related-post-meta small text-muted">
+								<?php echo esc_html( get_the_date( 'M d, Y' ) ); ?>
+							</div>
+						</div>
+						<div class="card-footer bg-transparent border-top-0">
+							<a href="<?php the_permalink(); ?>" class="btn btn-sm btn-outline-primary">
+								<?php esc_html_e( 'Read More', 'archie-rombo' ); ?>
+							</a>
+						</div>
+					</article>
+				</div>
+				<?php
+			}
+			wp_reset_postdata();
+			?>
+		</div>
+	</section>
+	<?php
+}
+
+// Styling for related posts
+function archie_rombo_related_posts_styles() {
+	?>
+	<style>
+		.related-posts {
+			background: #f8f9fa;
+			padding: 2rem;
+			margin: 0 -2rem;
+		}
+		.related-post-card {
+			transition: transform 0.3s ease, box-shadow 0.3s ease;
+			border: 1px solid #dee2e6;
+		}
+		.related-post-card:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+		}
+		.related-post-image {
+			display: block;
+			overflow: hidden;
+		}
+		.related-post-image img {
+			transition: transform 0.3s ease;
+		}
+		.related-post-card:hover .related-post-image img {
+			transform: scale(1.05);
+		}
+		.related-post-meta {
+			font-size: 0.85rem;
+		}
+		@media (max-width: 768px) {
+			.related-posts {
+				margin: 0 -1rem;
+				padding: 1.5rem 1rem;
+			}
+		}
+	</style>
+	<?php
+}
+add_action( 'wp_head', 'archie_rombo_related_posts_styles' );
+
+
+/**
+ * Post Share Buttons Feature
+ * Display social share buttons for posts
+ * 
+ * @since 1.0.1
+ */
+function archie_rombo_share_buttons() {
+	// Check if share buttons are enabled
+	if ( ! get_theme_mod( 'archie_rombo_enable_share_buttons', 1 ) ) {
+		return;
+	}
+
+	if ( ! is_single() || get_post_type() !== 'post' ) {
+		return;
+	}
+
+	$post_title = get_the_title();
+	$post_url = get_permalink();
+	$post_excerpt = wp_trim_words( get_the_excerpt(), 20 );
+	
+	// Prepare encoded data for URLs
+	$encoded_url = rawurlencode( $post_url );
+	$encoded_title = rawurlencode( $post_title );
+	$encoded_excerpt = rawurlencode( $post_excerpt );
+
+	$facebook_url = 'https://www.facebook.com/sharer/sharer.php?u=' . $encoded_url;
+	$twitter_url = 'https://twitter.com/intent/tweet?url=' . $encoded_url . '&text=' . $encoded_title;
+	$linkedin_url = 'https://www.linkedin.com/sharing/share-offsite/?url=' . $encoded_url;
+	$whatsapp_url = 'https://wa.me/?text=' . $encoded_title . '%20' . $encoded_url;
+	$email_url = 'mailto:?subject=' . $encoded_title . '&body=' . $encoded_excerpt . '%20' . $encoded_url;
+	$pinterest_url = 'https://pinterest.com/pin/create/button/?url=' . $encoded_url . '&description=' . $encoded_title;
+
+	?>
+	<div class="share-buttons mt-4 pt-4 border-top">
+		<h5 class="mb-3"><?php esc_html_e( 'Share this post', 'archie-rombo' ); ?></h5>
+		<div class="share-buttons-list">
+			<a href="<?php echo esc_url( $facebook_url ); ?>" target="_blank" rel="noopener noreferrer" class="share-btn share-facebook" title="<?php esc_attr_e( 'Share on Facebook', 'archie-rombo' ); ?>">
+				<i class="fa-brands fa-facebook-f"></i>
+				<span class="share-text"><?php esc_html_e( 'Facebook', 'archie-rombo' ); ?></span>
+			</a>
+			<a href="<?php echo esc_url( $twitter_url ); ?>" target="_blank" rel="noopener noreferrer" class="share-btn share-twitter" title="<?php esc_attr_e( 'Share on Twitter', 'archie-rombo' ); ?>">
+				<i class="fa-brands fa-twitter"></i>
+				<span class="share-text"><?php esc_html_e( 'Twitter', 'archie-rombo' ); ?></span>
+			</a>
+			<a href="<?php echo esc_url( $linkedin_url ); ?>" target="_blank" rel="noopener noreferrer" class="share-btn share-linkedin" title="<?php esc_attr_e( 'Share on LinkedIn', 'archie-rombo' ); ?>">
+				<i class="fa-brands fa-linkedin-in"></i>
+				<span class="share-text"><?php esc_html_e( 'LinkedIn', 'archie-rombo' ); ?></span>
+			</a>
+			<a href="<?php echo esc_url( $whatsapp_url ); ?>" target="_blank" rel="noopener noreferrer" class="share-btn share-whatsapp" title="<?php esc_attr_e( 'Share on WhatsApp', 'archie-rombo' ); ?>">
+				<i class="fa-brands fa-whatsapp"></i>
+				<span class="share-text"><?php esc_html_e( 'WhatsApp', 'archie-rombo' ); ?></span>
+			</a>
+			<a href="<?php echo esc_url( $pinterest_url ); ?>" target="_blank" rel="noopener noreferrer" class="share-btn share-pinterest" title="<?php esc_attr_e( 'Share on Pinterest', 'archie-rombo' ); ?>">
+				<i class="fa-brands fa-pinterest-p"></i>
+				<span class="share-text"><?php esc_html_e( 'Pinterest', 'archie-rombo' ); ?></span>
+			</a>
+			<a href="<?php echo esc_url( $email_url ); ?>" class="share-btn share-email" title="<?php esc_attr_e( 'Share via Email', 'archie-rombo' ); ?>">
+				<i class="fa-solid fa-envelope"></i>
+				<span class="share-text"><?php esc_html_e( 'Email', 'archie-rombo' ); ?></span>
+			</a>
+		</div>
+	</div>
+	<?php
+}
+
+// Styling for share buttons
+function archie_rombo_share_buttons_styles() {
+	?>
+	<style>
+		.share-buttons {
+			padding: 1.5rem 0;
+		}
+		.share-buttons-list {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 1rem;
+		}
+		.share-btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.5rem;
+			padding: 0.6rem 1.2rem;
+			border: 2px solid #e0e0e0;
+			border-radius: 4px;
+			text-decoration: none;
+			color: #333;
+			font-size: 0.95rem;
+			font-weight: 500;
+			transition: all 0.3s ease;
+			background: #f8f9fa;
+		}
+		.share-btn:hover {
+			color: white;
+			text-decoration: none;
+		}
+		.share-btn i {
+			font-size: 1.2rem;
+		}
+		.share-facebook {
+			border-color: #1877f2;
+			color: #1877f2;
+		}
+		.share-facebook:hover {
+			background: #1877f2;
+		}
+		.share-twitter {
+			border-color: #1da1f2;
+			color: #1da1f2;
+		}
+		.share-twitter:hover {
+			background: #1da1f2;
+		}
+		.share-linkedin {
+			border-color: #0a66c2;
+			color: #0a66c2;
+		}
+		.share-linkedin:hover {
+			background: #0a66c2;
+		}
+		.share-whatsapp {
+			border-color: #25d366;
+			color: #25d366;
+		}
+		.share-whatsapp:hover {
+			background: #25d366;
+		}
+		.share-pinterest {
+			border-color: #e60023;
+			color: #e60023;
+		}
+		.share-pinterest:hover {
+			background: #e60023;
+		}
+		.share-email {
+			border-color: var(--primary-color);
+			color: var(--primary-color);
+		}
+		.share-email:hover {
+			background: var(--primary-color);
+		}
+		@media (max-width: 768px) {
+			.share-btn {
+				padding: 0.5rem 0.8rem;
+				font-size: 0.85rem;
+			}
+			.share-btn i {
+				font-size: 1rem;
+			}
+			.share-text {
+				display: none;
+			}
+		}
+	</style>
+	<?php
+}
+add_action( 'wp_head', 'archie_rombo_share_buttons_styles' );
+
+
+/**
+ * Advanced Customizer Settings
+ * Add more control options to the WordPress Customizer
+ * 
+ * @since 1.0.1
+ */
+function archie_rombo_advanced_customizer( $wp_customize ) {
+	
+	// Section: Additional Theme Options
+	$wp_customize->add_section( 'archie_rombo_advanced_section', array(
+		'title'       => __( 'Archie Rombo - Advanced Options', 'archie-rombo' ),
+		'description' => __( 'Advanced customization options for Archie Rombo theme', 'archie-rombo' ),
+		'priority'    => 30,
+	) );
+
+	// Setting: Enable/Disable Breadcrumbs
+	$wp_customize->add_setting( 'archie_rombo_enable_breadcrumbs', array(
+		'default'           => 1,
+		'sanitize_callback' => 'absint',
+	) );
+	$wp_customize->add_control( 'archie_rombo_enable_breadcrumbs', array(
+		'label'       => __( 'Enable Breadcrumb Navigation', 'archie-rombo' ),
+		'section'     => 'archie_rombo_advanced_section',
+		'type'        => 'checkbox',
+	) );
+
+	// Setting: Enable/Disable Related Posts
+	$wp_customize->add_setting( 'archie_rombo_enable_related_posts', array(
+		'default'           => 1,
+		'sanitize_callback' => 'absint',
+	) );
+	$wp_customize->add_control( 'archie_rombo_enable_related_posts', array(
+		'label'       => __( 'Enable Related Posts', 'archie-rombo' ),
+		'section'     => 'archie_rombo_advanced_section',
+		'type'        => 'checkbox',
+	) );
+
+	// Setting: Enable/Disable Share Buttons
+	$wp_customize->add_setting( 'archie_rombo_enable_share_buttons', array(
+		'default'           => 1,
+		'sanitize_callback' => 'absint',
+	) );
+	$wp_customize->add_control( 'archie_rombo_enable_share_buttons', array(
+		'label'       => __( 'Enable Social Share Buttons', 'archie-rombo' ),
+		'section'     => 'archie_rombo_advanced_section',
+		'type'        => 'checkbox',
+	) );
+
+	// Setting: Number of Related Posts
+	$wp_customize->add_setting( 'archie_rombo_related_posts_count', array(
+		'default'           => 3,
+		'sanitize_callback' => 'absint',
+	) );
+	$wp_customize->add_control( 'archie_rombo_related_posts_count', array(
+		'label'       => __( 'Number of Related Posts to Display', 'archie-rombo' ),
+		'section'     => 'archie_rombo_advanced_section',
+		'type'        => 'number',
+		'input_attrs' => array(
+			'min'  => 1,
+			'max'  => 12,
+			'step' => 1,
+		),
+	) );
+
+	// Setting: Enable/Disable Reading Time
+	$wp_customize->add_setting( 'archie_rombo_enable_reading_time', array(
+		'default'           => 1,
+		'sanitize_callback' => 'absint',
+	) );
+	$wp_customize->add_control( 'archie_rombo_enable_reading_time', array(
+		'label'       => __( 'Enable Reading Time Estimate', 'archie-rombo' ),
+		'section'     => 'archie_rombo_advanced_section',
+		'type'        => 'checkbox',
+	) );
+
+	// Setting: Enable/Disable Structured Data
+	$wp_customize->add_setting( 'archie_rombo_enable_structured_data', array(
+		'default'           => 1,
+		'sanitize_callback' => 'absint',
+	) );
+	$wp_customize->add_control( 'archie_rombo_enable_structured_data', array(
+		'label'       => __( 'Enable Structured Data Markup', 'archie-rombo' ),
+		'section'     => 'archie_rombo_advanced_section',
+		'type'        => 'checkbox',
+	) );
+
+	// Setting: Words Per Minute for Reading Time
+	$wp_customize->add_setting( 'archie_rombo_reading_speed', array(
+		'default'           => 200,
+		'sanitize_callback' => 'absint',
+	) );
+	$wp_customize->add_control( 'archie_rombo_reading_speed', array(
+		'label'       => __( 'Average Reading Speed (words per minute)', 'archie-rombo' ),
+		'section'     => 'archie_rombo_advanced_section',
+		'type'        => 'number',
+		'input_attrs' => array(
+			'min'  => 100,
+			'max'  => 400,
+			'step' => 10,
+		),
+	) );
+
+	// Section: Color & Typography
+	$wp_customize->add_section( 'archie_rombo_colors_section', array(
+		'title'       => __( 'Archie Rombo - Colors', 'archie-rombo' ),
+		'priority'    => 31,
+	) );
+
+	// Setting: Link Hover Color
+	$wp_customize->add_setting( 'archie_rombo_link_hover_color', array(
+		'default'           => '#ff6b6b',
+		'sanitize_callback' => 'sanitize_hex_color',
+	) );
+	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'archie_rombo_link_hover_color', array(
+		'label'   => __( 'Link Hover Color', 'archie-rombo' ),
+		'section' => 'archie_rombo_colors_section',
+	) ) );
+
+	// Setting: Button Hover Color
+	$wp_customize->add_setting( 'archie_rombo_button_hover_color', array(
+		'default'           => '',
+		'sanitize_callback' => 'sanitize_hex_color',
+	) );
+	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'archie_rombo_button_hover_color', array(
+		'label'   => __( 'Button Hover Color (Leave blank for auto-dark)', 'archie-rombo' ),
+		'section' => 'archie_rombo_colors_section',
+	) ) );
+
+	// Section: Footer Settings
+	$wp_customize->add_section( 'archie_rombo_footer_section', array(
+		'title'       => __( 'Archie Rombo - Footer', 'archie-rombo' ),
+		'priority'    => 32,
+	) );
+
+	// Setting: Footer Background Color
+	$wp_customize->add_setting( 'archie_rombo_footer_bg_color', array(
+		'default'           => '#f8f9fa',
+		'sanitize_callback' => 'sanitize_hex_color',
+	) );
+	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'archie_rombo_footer_bg_color', array(
+		'label'   => __( 'Footer Background Color', 'archie-rombo' ),
+		'section' => 'archie_rombo_footer_section',
+	) ) );
+
+	// Setting: Footer Text Color
+	$wp_customize->add_setting( 'archie_rombo_footer_text_color', array(
+		'default'           => '#333333',
+		'sanitize_callback' => 'sanitize_hex_color',
+	) );
+	$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'archie_rombo_footer_text_color', array(
+		'label'   => __( 'Footer Text Color', 'archie-rombo' ),
+		'section' => 'archie_rombo_footer_section',
+	) ) );
+
+	// Setting: Copyright Text
+	$wp_customize->add_setting( 'archie_rombo_custom_copyright', array(
+		'default'           => '',
+		'sanitize_callback' => 'wp_kses_post',
+	) );
+	$wp_customize->add_control( 'archie_rombo_custom_copyright', array(
+		'label'       => __( 'Custom Copyright Text', 'archie-rombo' ),
+		'section'     => 'archie_rombo_footer_section',
+		'type'        => 'textarea',
+		'description' => __( 'Leave blank to use default copyright text', 'archie-rombo' ),
+	) );
+
+}
+add_action( 'customize_register', 'archie_rombo_advanced_customizer' );
+
+// Apply customizer colors to frontend
+function archie_rombo_apply_customizer_colors() {
+	$link_hover_color = get_theme_mod( 'archie_rombo_link_hover_color', '#ff6b6b' );
+	$button_hover_color = get_theme_mod( 'archie_rombo_button_hover_color', '' );
+	$footer_bg_color = get_theme_mod( 'archie_rombo_footer_bg_color', '#f8f9fa' );
+	$footer_text_color = get_theme_mod( 'archie_rombo_footer_text_color', '#333333' );
+
+	// Auto-darken button hover if not set
+	if ( empty( $button_hover_color ) ) {
+		$button_hover_color = $link_hover_color;
+	}
+
+	?>
+	<style>
+		a:hover {
+			color: <?php echo esc_attr( $link_hover_color ); ?> !important;
+		}
+		.btn:hover, button:hover, input[type="button"]:hover, input[type="submit"]:hover {
+			background-color: <?php echo esc_attr( $button_hover_color ); ?> !important;
+			border-color: <?php echo esc_attr( $button_hover_color ); ?> !important;
+		}
+		footer {
+			background-color: <?php echo esc_attr( $footer_bg_color ); ?>;
+			color: <?php echo esc_attr( $footer_text_color ); ?>;
+		}
+		footer a {
+			color: <?php echo esc_attr( $link_hover_color ); ?>;
+		}
+	</style>
+	<?php
+}
+add_action( 'wp_head', 'archie_rombo_apply_customizer_colors' );
+
+
+/**
+ * Reading Time Estimate
+ * Calculate and display estimated reading time for posts
+ * 
+ * @since 1.0.1
+ */
+function archie_rombo_get_reading_time() {
+	// Check if reading time is enabled
+	if ( ! get_theme_mod( 'archie_rombo_enable_reading_time', 1 ) ) {
+		return '';
+	}
+
+	if ( ! is_single() || get_post_type() !== 'post' ) {
+		return '';
+	}
+
+	// Get the post content
+	$post_content = get_the_content();
+	
+	// Strip HTML tags and shortcodes
+	$post_content = strip_shortcodes( $post_content );
+	$post_content = wp_strip_all_tags( $post_content );
+	
+	// Count words
+	$word_count = str_word_count( $post_content );
+	
+	// Get reading speed from customizer
+	$reading_speed = get_theme_mod( 'archie_rombo_reading_speed', 200 );
+	
+	// Calculate reading time in minutes
+	$reading_time = ceil( $word_count / $reading_speed );
+	
+	// Ensure minimum of 1 minute
+	$reading_time = max( 1, $reading_time );
+	
+	return array(
+		'time'     => $reading_time,
+		'words'    => $word_count,
+		'text'     => sprintf(
+			/* translators: %d is the number of minutes */
+			_n( '%d min read', '%d min read', $reading_time, 'archie-rombo' ),
+			$reading_time
+		)
+	);
+}
+
+function archie_rombo_display_reading_time() {
+	$reading_info = archie_rombo_get_reading_time();
+	
+	if ( empty( $reading_info ) ) {
+		return;
+	}
+
+	?>
+	<div class="reading-time">
+		<i class="fa-solid fa-clock"></i>
+		<span><?php echo esc_html( $reading_info['text'] ); ?></span>
+	</div>
+	<?php
+}
+
+// Styling for reading time
+function archie_rombo_reading_time_styles() {
+	?>
+	<style>
+		.reading-time {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.5rem;
+			padding: 0.5rem 1rem;
+			background: #f0f4f8;
+			border-radius: 4px;
+			color: #555;
+			font-size: 0.9rem;
+			margin-right: 1rem;
+		}
+		.reading-time i {
+			color: var(--primary-color);
+		}
+		.post-meta .reading-time {
+			margin-right: 1rem;
+			margin-bottom: 0.5rem;
+		}
+	</style>
+	<?php
+}
+add_action( 'wp_head', 'archie_rombo_reading_time_styles' );
 
 

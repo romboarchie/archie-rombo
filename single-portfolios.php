@@ -2,6 +2,7 @@
 
 <section class="page-wrap">
 <div class="container">
+<?php archie_rombo_breadcrumbs(); ?>
 <h1><?php the_title();?></h1>
 
 	<?php if (has_post_thumbnail()): ?>

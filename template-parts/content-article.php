@@ -12,6 +12,8 @@
 
 			<span class="comment"><a href="#comments"><i class='fa fa-comment'></i> <?php comments_number();?></a></span>
 
+			<?php archie_rombo_display_reading_time(); ?>
+
 			<h2 class="entry-title mb-1"><a href="<?php the_permalink();?>"><?php the_title_attribute(); ?></a></h2><br>
 
 			<?php if ( has_post_thumbnail()) : ?>
@@ -33,6 +35,8 @@ the_post_navigation(
 		) 
 );
 ?>
+<?php archie_rombo_related_posts( 3 ); ?>
+<?php archie_rombo_share_buttons(); ?>
 <?php 
 comments_template();
 

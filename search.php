@@ -2,10 +2,10 @@
 
 <section class="page-wrap">
 	<div class="container-fluid" style="--bs-gutter-x: 1.5rem;width: 95%;">
-		
+		<?php archie_rombo_breadcrumbs(); ?>
 				
 				<!--add content of /includes/section-archive.php to this page-->
-				<h1>Search Results for '<?php echo get_search_query(); ?>'</h1>
+				<h1>Search Results for '<?php echo esc_html( get_search_query() ); ?>'</h1>
 				<p><?php get_search_form(); ?></p>
 
 				<?php get_template_part('includes/section','searchresults');?>
