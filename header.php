@@ -28,7 +28,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-body">
-            <form action="./" method="get"  class="d-flex form-floating search-form"  style="margin: 2rem;"> 
+            <form action="./" method="get"  class="d-flex  search-form"  style="margin: 2rem;"> 
               <input type="text" class="form-control me-2 search-field" name="s" id="search" placeholder="Search..." value="<?php the_search_query(); ?>" />
               <button type="submit" class="btn btn-success search-submit"><i class="fa fa-search" aria-hidden="true"></i></button>
             </form>
