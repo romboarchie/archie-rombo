@@ -140,14 +140,11 @@
 			<div class="row mb-5">
 				<div class="col-12">
 					<h3 class="mb-4">Find Us On Map</h3>
-					<div class="map-container" style="position: relative; width: 100%; overflow: hidden; padding-top: 56.25%;">
+					<div class="map-container" style="position: relative; width: 100%; overflow: hidden; ">
 						<iframe 
-							style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" 
-							src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3024.2219901290255!2d-74.00601612346759!3d40.71282571143212!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25a22a3855555%3A0x1c6e6814010f21973!2s1600%20Pennsylvania%20Avenue%20NW%2C%20Washington%2C%20DC%2020500%2C%20USA!5e0!3m2!1sen!2sus!4v1623456789012" 
-							allowfullscreen="" 
-							loading="lazy" 
-							referrerpolicy="no-referrer-when-downgrade">
-						</iframe>
+						src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.8087786253786!2d36.818133068208034!3d-1.288938995823053!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f10d844cb44d5%3A0x8400193d944f808f!2sKICC%2C%20Nairobi!5e0!3m2!1sen!2ske!4v1778579630828!5m2!1sen!2ske" 
+						width="100%" height="650" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+					</iframe>
 					</div>
 					<p class="text-muted mt-3 small">
 						<em>Note: Replace the embedded map URL with your actual location coordinates. Get your map embed code from <a href="https://www.google.com/maps" target="_blank">Google Maps</a>.</em>
