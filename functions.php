@@ -1520,6 +1520,36 @@ function archie_rombo_advanced_customizer( $wp_customize ) {
 		'description' => __( 'Leave blank to use default copyright text', 'archie-rombo' ),
 	) );
 
+	// Section: Homepage Settings
+	$wp_customize->add_section( 'archie_rombo_homepage_section', array(
+		'title'       => __( 'Archie Rombo - Homepage', 'archie-rombo' ),
+		'priority'    => 30,
+	) );
+
+	// Setting: Enable/Disable Hero Section
+	$wp_customize->add_setting( 'archie_rombo_enable_hero_section', array(
+		'default'           => 1,
+		'sanitize_callback' => 'absint',
+	) );
+	$wp_customize->add_control( 'archie_rombo_enable_hero_section', array(
+		'label'       => __( 'Enable Hero Section (Slider)', 'archie-rombo' ),
+		'section'     => 'archie_rombo_homepage_section',
+		'type'        => 'checkbox',
+		'description' => __( 'Show or hide the hero slider section on the homepage', 'archie-rombo' ),
+	) );
+
+	// Setting: Enable/Disable Page Title
+	$wp_customize->add_setting( 'archie_rombo_enable_page_title', array(
+		'default'           => 1,
+		'sanitize_callback' => 'absint',
+	) );
+	$wp_customize->add_control( 'archie_rombo_enable_page_title', array(
+		'label'       => __( 'Enable Page Title', 'archie-rombo' ),
+		'section'     => 'archie_rombo_homepage_section',
+		'type'        => 'checkbox',
+		'description' => __( 'Show or hide the page title on pages', 'archie-rombo' ),
+	) );
+
 }
 add_action( 'customize_register', 'archie_rombo_advanced_customizer' );
 

@@ -878,3 +878,391 @@ h6 {
   color: var(--link-color);
   font-weight: bold;
 }
+
+/* ========================================
+   Contact Page Styles
+   ======================================== */
+
+.contact-details {
+  background-color: #f8f9fa;
+  padding: 2rem;
+  border-radius: 8px;
+  height: 100%;
+}
+
+.contact-details h3 {
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  border-bottom: 3px solid var(--link-color);
+  padding-bottom: 1rem;
+}
+
+.contact-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-item h5 {
+  color: #333;
+  font-size: 1rem;
+}
+
+.contact-item i {
+  color: var(--link-color);
+  margin-right: 0.5rem;
+}
+
+.contact-item p {
+  margin: 0;
+  color: #666;
+  line-height: 1.6;
+}
+
+.contact-item a {
+  color: var(--link-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.contact-item a:hover {
+  color: #333;
+  text-decoration: underline;
+}
+
+.contact-form {
+  background-color: #f8f9fa;
+  padding: 2rem;
+  border-radius: 8px;
+}
+
+.contact-form h3 {
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  border-bottom: 3px solid var(--link-color);
+  padding-bottom: 1rem;
+}
+
+.contact-form .form-label {
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.contact-form .form-control {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.75rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contact-form .form-control:focus {
+  border-color: var(--link-color);
+  box-shadow: 0 0 0 0.2rem rgba(var(--link-color-rgb), 0.25);
+  outline: none;
+}
+
+.contact-form .btn-primary {
+  background-color: var(--link-color);
+  border-color: var(--link-color);
+  font-weight: bold;
+  padding: 0.75rem 2rem;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.contact-form .btn-primary:hover {
+  background-color: #333;
+  border-color: #333;
+}
+
+.map-container {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.contact-form .invalid-feedback {
+  display: block;
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .contact-details,
+  .contact-form {
+    margin-bottom: 2rem;
+  }
+  
+  .contact-form .btn-primary {
+    width: 100%;
+  }
+}
+
+/* ========================================
+   Front Page / Homepage Styles
+   ======================================== */
+
+/* Hero Slider Section */
+.hero-slider {
+  position: relative;
+  margin-top: 0;
+}
+
+.carousel-item {
+  transition: all 0.6s ease;
+}
+
+.carousel-caption {
+  bottom: auto;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 2rem;
+}
+
+.carousel-caption h1 {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-weight: 800;
+}
+
+.carousel-caption p {
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  font-size: 1.25rem;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.3));
+}
+
+.carousel-indicators button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+/* Section Titles */
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #333;
+  position: relative;
+  display: inline-block;
+  padding-bottom: 1rem;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: var(--link-color);
+  border-radius: 2px;
+}
+
+/* About Section */
+.about-section {
+  background-color: #ffffff;
+}
+
+.about-section .lead {
+  font-size: 1.15rem;
+  color: #666;
+  line-height: 1.8;
+}
+
+.about-section ul li {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.8;
+}
+
+.about-image {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.about-image:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+}
+
+/* Services Section */
+.services-section {
+  background-color: #f8f9fa;
+}
+
+.service-card {
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15) !important;
+}
+
+.service-icon {
+  display: inline-flex;
+  width: 80px;
+  height: 80px;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--link-color) 0%, #667eea 100%);
+  border-radius: 50%;
+  color: white;
+  margin: 0 auto;
+}
+
+.service-card h4 {
+  color: #333;
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.service-card p {
+  color: #666;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* Featured Section */
+.featured-section {
+  background-color: #ffffff;
+}
+
+.featured-card {
+  border: none;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.featured-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15) !important;
+}
+
+.featured-card h5 {
+  color: #333;
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.featured-card p {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.featured-card .btn-outline-primary {
+  color: var(--link-color);
+  border-color: var(--link-color);
+  transition: all 0.3s ease;
+}
+
+.featured-card .btn-outline-primary:hover {
+  background-color: var(--link-color);
+  border-color: var(--link-color);
+}
+
+/* Call to Action Section */
+.cta-section {
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+.cta-section .display-4 {
+  font-weight: 800;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.cta-section .lead {
+  font-size: 1.5rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.cta-section .btn-light {
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.cta-section .btn-light:hover {
+  transform: scale(1.05);
+}
+
+/* Page Content Section */
+.page-content {
+  background-color: #ffffff;
+}
+
+.page-content h2,
+.page-content h3,
+.page-content h4 {
+  color: #333;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.page-content p {
+  color: #666;
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .carousel-item {
+    height: 300px !important;
+  }
+
+  .carousel-caption h1 {
+    font-size: 1.5rem;
+  }
+
+  .carousel-caption p {
+    font-size: 0.9rem;
+  }
+
+  .section-title {
+    font-size: 1.75rem;
+  }
+
+  .about-image {
+    height: 300px !important;
+    margin-top: 2rem;
+  }
+
+  .featured-image {
+    height: 200px !important;
+  }
+
+  .service-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .cta-section .display-4 {
+    font-size: 2rem;
+  }
+
+  .cta-section .lead {
+    font-size: 1rem;
+  }
+}
+}

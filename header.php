@@ -155,6 +155,7 @@
 $header_bg_id = get_option('archie_rombo_header_bg');
 $header_bg_url = $header_bg_id ? wp_get_attachment_image_url($header_bg_id, 'full') : '';
 ?>
+<?php if ( get_theme_mod( 'archie_rombo_enable_page_title', 1 ) ) : ?>
 <section class="hero-section text-center text-white" style="<?php echo $header_bg_url ? 'background-image: url(' . esc_url($header_bg_url) . ');' : ''; ?>">
     <div class="hero-overlay"></div>
     <div class="container position-relative">
@@ -171,4 +172,5 @@ $header_bg_url = $header_bg_id ? wp_get_attachment_image_url($header_bg_id, 'ful
         ?></h1>
     </div>
 </section>
+<?php endif; ?>
 <?php //the_title(); ?>
