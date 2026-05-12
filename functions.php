@@ -338,7 +338,7 @@ function archie_rombo_dynamic_css() {
 		.search-form .search-submit,
 		button, .btn, input[type="button"], input[type="reset"], input[type="submit"],
 		.more-link {
-			border-radius: var(--button-radius);
+			/* border-radius: var(--button-radius); */
 			padding: var(--button-padding-v) var(--button-padding-h);
 		}
 
