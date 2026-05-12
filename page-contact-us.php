@@ -84,7 +84,7 @@
 						<h3 class="mb-4">Send us a Message</h3>
 						<form method="POST" action="" class="needs-validation">
 							<div class="row">
-								<div class="col-md-6 mb-3">
+								<div class="col-md-6 mb-3" style="padding-right: 1.5rem;">
 									<label for="firstName" class="form-label">First Name *</label>
 									<input type="text" class="form-control" id="firstName" name="firstName" required>
 									<div class="invalid-feedback">
@@ -101,7 +101,7 @@
 							</div>
 
 							<div class="row">
-								<div class="col-md-6 mb-3">
+								<div class="col-md-6 mb-3" style="padding-right: 1.5rem;">
 									<label for="email" class="form-label">Email *</label>
 									<input type="email" class="form-control" id="email" name="email" required>
 									<div class="invalid-feedback">
