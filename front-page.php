@@ -1,6 +1,21 @@
 <?php get_header();?>
 
-<?php get_header();?>
+<?php 
+// Determine if page has content
+$has_content = false;
+if(have_posts()){
+    while(have_posts()){
+        the_post();
+        if(!empty(get_the_content())){
+            $has_content = true;
+        }
+    }
+    rewind_posts();
+}
+?>
+
+<!-- Show default content only if page is empty -->
+<?php if(!$has_content): ?>
 
 <!-- ========================================
      HERO SLIDER SECTION
@@ -244,6 +259,8 @@
         </div>
     </div>
 </section>
+
+<?php endif; ?>
 
 <!-- ========================================
      PAGE CONTENT

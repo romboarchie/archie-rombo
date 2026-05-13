@@ -13,12 +13,22 @@
 
 
     get_header();
-
-
-
-
+    
+    // Determine if page has content
+    $has_content = false;
+    if(have_posts()){
+        while(have_posts()){
+            the_post();
+            if(!empty(get_the_content())){
+                $has_content = true;
+            }
+        }
+        rewind_posts();
+    }
     ?>
     
+<!-- Show default content only if page is empty -->
+<?php if(!$has_content): ?>
 <!-- <div class="container" style="padding-top: 3rem;">
 		<div class="row">
 				<div class="col-sm-3">
@@ -151,6 +161,9 @@
 					</p>
 				</div>
 			</div>
+		</div>
+    </div>
+<?php endif; ?>
 
 			<!-- Page Content -->
 			<div class="row">
